@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+	<security:http use-expressions="true">
+	
+		<security:intercept-url pattern="/blog/*/editar*" access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR') "/>
+		<security:intercept-url pattern="/blog/guardar*" access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR') "/>
+	
+		<!-- Usuario -->
+		 <security:intercept-url pattern="/usuario/*/editar*" access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR') "/>
+		 <security:intercept-url pattern="/usuario/guardar*" access="hasAnyRole('ROLE_ADMIN','ROLE_EDITOR') "/>
+		 	
+		<security:form-login 
+		 login-page="/login"
+		 login-processing-url="/autentificar"
+		 username-parameter="email"
+		 password-parameter="password"
+		 default-target-url="/blog/1/editar"
+		 authentication-failure-url="/login?errorLogin=true"/>
+		
+		<security:logout logout-url="/logout" logout-success-url="/login"/>
+		
+		<!--Sobre escribe la pantalla default en un error 403  -->
+		<security:access-denied-handler error-page="/error-403"/>
+		
+	</security:http>
+	
+	<security:authentication-manager erase-credentials="false">
+		<security:authentication-provider>
+			<!--<security:user-service> -->
+				<!-- para authorities se debe poner el prefijo ROLE_  seguido del nombre que se desee-->
+				<!--<security:user name="juan@email.com" password="1234" authorities="ROLE_ADMIN"/>
+				<security:user name="pepe@email.com" password="1234" authorities="ROLE_EDITOR"/>
+				<security:user name="daniel@email.com" password="1234" authorities="ROLE_VISTA"/>
+			</security:user-service>-->
+			
+			<security:jdbc-user-service
+			    data-source-ref="dataSource"
+			    users-by-username-query="SELECT email,password,activo FROM usuarios WHERE email=?"
+			    authorities-by-username-query="SELECT email, rol FROM usuarios WHERE email=?" />
+			    
+		</security:authentication-provider>
+	</security:authentication-manager>
+	
+</beans>

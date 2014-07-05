@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- ESTA ETIQUETA HABILITA LOS ANNOTATIONS DE SPRING -->
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<!-- ESTA LE DICE A SPRING QUE CUALQUIER RUTA
+	     QUE SEA DE LA FORMA 
+	     CONTEXT-ROOT/resources/RECURSO_ESTATICO
+	     
+	     NO DEBE DE SER PROCESADA POR EL CONTROLADOR AL FRENTE DE SPRING
+	     
+	     EL PARAMETRO location = ES EL NOMBRE REAL DE LA CARPETA ESTATICA
+	                  mapping = ES UN NOMBRE VIRTUAL QUE SE LE DA A ESA CARPETA
+	       
+	      -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<!-- Esta propiedad controla el nombre de los archivos de Internacionalizacion -->
+		<!-- El nombre value debe ser igual al inicio de los archivos properties como mensajes_en.properties -->
+		<beans:property name="basename" value="mensajes" />
+	</beans:bean>
+		
+	<beans:bean id="localeResolver"
+	class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+	
+	<!-- Damos de alta un resolvedor de localidad -->
+	<!-- <beans:bean id="localeResolver"-->
+	<!-- 	class="org.springframework.web.servlet.i18n.CookieLocaleResolver"> -->
+	<!-- 	<beans:property name="cookieName" value="laCookieDelLenguaje" /> -->
+	<!-- Tiempo en segundos  -->
+	<!--	<beans:property name="cookieMaxAge" value="60000" /> -->
+	<!-- </beans:bean>-->
+		
+	<!-- ESTE COMPONENTE PERMITE USAR UN QUERY STRING PARA CAMBIAR LA LOCALIDAD DEL LENGUAJE
+	 ESTE COMPONENTE NO FUNCIONA CON assepheaderLocalResolver
+	  ej: http://localhost:8080/mvc/inicio?lenguaje=en -->
+	<beans:bean id="localeChangeInterceptor"
+		class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+		<beans:property name="paramName" value="lenguaje" />
+	</beans:bean>
+		
+	<!-- Damos de alta el localchange Interceptor Le pasamos el ID del componenete -->
+	<interceptors>
+		<beans:ref bean="localeChangeInterceptor" />
+	</interceptors>
+		
+	
+	<!-- LE DICE A SPRING DONDE BUSCAR CLASES CON ANNOTATIONS DE SPRING -->
+	<context:component-scan base-package="org.upiita.spring.controladores" />
+	
+	<beans:bean  class="org.upiita.spring.form.FormaSession" scope="session">
+		<aop:scoped-proxy/>
+	</beans:bean>
+	
+</beans:beans>
